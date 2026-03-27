@@ -187,7 +187,6 @@ export default function EditorPage() {
               cuts={cuts}
               onCutUpdate={handleCutUpdate}
               onTimeUpdate={handleTimeUpdate}
-              onSeek={handleSeek}
             />
           )}
 

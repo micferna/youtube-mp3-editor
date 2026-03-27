@@ -55,9 +55,10 @@ export function useAudioEditor() {
     }
   }, [])
 
+  // Only call this for external seeks (e.g. clicking video timeline)
+  // Do NOT call from waveform callbacks to avoid infinite loops
   const handleSeek = useCallback((time: number) => {
     useEditorStore.getState().setCurrentTime(time)
-    waveformRef.current?.seek(time)
   }, [])
 
   const handleTimeUpdate = useCallback((time: number) => {

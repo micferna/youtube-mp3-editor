@@ -25,11 +25,10 @@ interface WaveformProps {
   cuts: Cut[]
   onCutUpdate: (cutId: string, start: number, end: number) => void
   onTimeUpdate: (time: number) => void
-  onSeek: (time: number) => void
 }
 
 const Waveform = forwardRef<WaveformHandle, WaveformProps>(
-  ({ fileId, peaks, cuts, onCutUpdate, onTimeUpdate, onSeek }, ref) => {
+  ({ fileId, peaks, cuts, onCutUpdate, onTimeUpdate }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null)
     const wsRef = useRef<WaveSurfer | null>(null)
     const regionsRef = useRef<RegionsPlugin | null>(null)
@@ -107,7 +106,7 @@ const Waveform = forwardRef<WaveformHandle, WaveformProps>(
       })
 
       ws.on('seeking', (currentTime: number) => {
-        onSeek(currentTime)
+        onTimeUpdate(currentTime)
       })
 
       ws.on('loading', () => {
