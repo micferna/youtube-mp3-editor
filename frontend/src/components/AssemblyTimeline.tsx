@@ -3,7 +3,6 @@ import {
   ChevronDown,
   ChevronUp,
   X,
-  Play,
   Trash2,
   Download,
   Layers,
@@ -20,7 +19,6 @@ import {
   SortableContext,
   useSortable,
   horizontalListSortingStrategy,
-  arrayMove,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { useEditorStore, type Cut } from '../stores/editorStore'

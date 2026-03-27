@@ -44,7 +44,6 @@ export default function EditorPage() {
     handleTimeUpdate,
     setVolume,
     setPlaybackRate,
-    setPlaying,
   } = useAudioEditor()
 
   const updateCut = useEditorStore((s) => s.updateCut)

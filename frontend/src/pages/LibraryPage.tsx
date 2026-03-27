@@ -351,7 +351,6 @@ export default function LibraryPage() {
               style={{
                 ...glassStyle,
                 color: 'var(--text-primary)',
-                focusRingColor: 'var(--accent-secondary)',
               }}
             />
           </div>
