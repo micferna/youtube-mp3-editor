@@ -114,6 +114,7 @@ export const useEditorStore = create<EditorState>()(
         })
       } catch (err) {
         console.error('Failed to load file:', err)
+        throw err
       }
     },
 

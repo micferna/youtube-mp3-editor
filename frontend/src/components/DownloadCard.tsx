@@ -6,17 +6,20 @@ import {
   XCircle,
   Trash2,
   ExternalLink,
+  Download,
 } from 'lucide-react'
 import { useWebSocket } from '../hooks/useWebSocket'
 
 export interface DownloadItem {
   id: string
-  title: string
+  name: string
+  title?: string
   status: 'downloading' | 'completed' | 'error' | 'queued'
   progress: number
   speed?: string
   eta?: string
   format: 'audio' | 'video'
+  file_id?: string
   error?: string
 }
 
@@ -103,9 +106,9 @@ export default function DownloadCard({ download, onUpdate, onDelete }: DownloadC
           <span
             className="text-sm font-medium truncate"
             style={{ color: 'var(--text-primary)' }}
-            title={download.title}
+            title={download.name || download.title}
           >
-            {download.title}
+            {download.name || download.title}
           </span>
           {statusBadge()}
         </div>
@@ -164,17 +167,31 @@ export default function DownloadCard({ download, onUpdate, onDelete }: DownloadC
       {/* Action buttons */}
       <div className="flex-shrink-0 flex items-center gap-2">
         {download.status === 'completed' && (
-          <button
-            onClick={() => navigate(`/editor?file=${download.id}`)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 hover:scale-105 cursor-pointer"
-            style={{
-              background: 'linear-gradient(135deg, var(--accent-primary), #c0392b)',
-              color: '#fff',
-            }}
-          >
-            <ExternalLink size={14} />
-            Open in Editor
-          </button>
+          <>
+            <a
+              href={`/api/files/${download.file_id || download.id}/stream`}
+              download
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 hover:scale-105 cursor-pointer"
+              style={{
+                background: 'linear-gradient(135deg, var(--accent-secondary), #2980b9)',
+                color: '#fff',
+              }}
+            >
+              <Download size={14} />
+              Save
+            </a>
+            <button
+              onClick={() => navigate(`/editor?file=${download.file_id || download.id}`)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 hover:scale-105 cursor-pointer"
+              style={{
+                background: 'linear-gradient(135deg, var(--accent-primary), #c0392b)',
+                color: '#fff',
+              }}
+            >
+              <ExternalLink size={14} />
+              Editor
+            </button>
+          </>
         )}
         <button
           onClick={() => onDelete(download.id)}

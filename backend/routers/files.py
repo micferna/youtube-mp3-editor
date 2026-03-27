@@ -50,6 +50,14 @@ async def upload_file(file: UploadFile):
     return info
 
 
+@router.get("/{file_id}")
+async def get_file(file_id: str):
+    info = StorageManager().get_file(file_id)
+    if not info:
+        raise HTTPException(status_code=404, detail="File not found")
+    return info
+
+
 @router.delete("/{file_id}")
 async def delete_file(file_id: str):
     if not StorageManager().delete_file(file_id):
