@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { Plus, Download, Scissors } from 'lucide-react'
 import {
   DndContext,
@@ -66,13 +66,9 @@ function SortableCutCard({
 }
 
 export default function CutPanel({ fileId, waveformRef }: CutPanelProps) {
-  const cuts = useEditorStore((s) => s.cuts[fileId] ?? [])
+  const cutsMap = useEditorStore((s) => s.cuts)
   const currentTime = useEditorStore((s) => s.currentTime)
-  const addCut = useEditorStore((s) => s.addCut)
-  const updateCut = useEditorStore((s) => s.updateCut)
-  const removeCut = useEditorStore((s) => s.removeCut)
-  const reorderCuts = useEditorStore((s) => s.reorderCuts)
-  const addToAssembly = useEditorStore((s) => s.addToAssembly)
+  const cuts = useMemo(() => cutsMap[fileId] ?? [], [cutsMap, fileId])
   const [showExport, setShowExport] = useState(false)
 
   const sensors = useSensors(
@@ -87,8 +83,8 @@ export default function CutPanel({ fileId, waveformRef }: CutPanelProps) {
     const end = duration > 0 ? Math.min(duration, currentTime + 5) : currentTime + 10
     const safeStart = currentTime > 0 ? start : 0
     const safeEnd = currentTime > 0 ? end : Math.min(10, duration || 10)
-    addCut(fileId, safeStart, safeEnd)
-  }, [fileId, currentTime, addCut, waveformRef])
+    useEditorStore.getState().addCut(fileId, safeStart, safeEnd)
+  }, [fileId, currentTime, waveformRef])
 
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
@@ -104,9 +100,9 @@ export default function CutPanel({ fileId, waveformRef }: CutPanelProps) {
         oldIndex,
         newIndex
       )
-      reorderCuts(fileId, newOrder)
+      useEditorStore.getState().reorderCuts(fileId, newOrder)
     },
-    [cuts, fileId, reorderCuts]
+    [cuts, fileId]
   )
 
   const handlePreview = useCallback(
@@ -192,8 +188,8 @@ export default function CutPanel({ fileId, waveformRef }: CutPanelProps) {
                 <SortableCutCard
                   key={cut.id}
                   cut={cut}
-                  onUpdate={(updates) => updateCut(fileId, cut.id, updates)}
-                  onDelete={() => removeCut(fileId, cut.id)}
+                  onUpdate={(updates) => useEditorStore.getState().updateCut(fileId, cut.id, updates)}
+                  onDelete={() => useEditorStore.getState().removeCut(fileId, cut.id)}
                   onPreview={() => handlePreview(cut)}
                 />
               ))}
@@ -207,7 +203,7 @@ export default function CutPanel({ fileId, waveformRef }: CutPanelProps) {
         <div className="flex items-center gap-2 px-3 py-2.5 border-t border-white/5">
           <button
             onClick={() => {
-              cuts.forEach((cut) => addToAssembly(fileId, cut.id))
+              cuts.forEach((cut) => useEditorStore.getState().addToAssembly(fileId, cut.id))
             }}
             className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all hover:bg-white/10"
             style={{

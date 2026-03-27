@@ -46,15 +46,13 @@ export default function EditorPage() {
     setPlaybackRate,
   } = useAudioEditor()
 
-  const updateCut = useEditorStore((s) => s.updateCut)
-
   const handleCutUpdate = useCallback(
     (cutId: string, start: number, end: number) => {
       if (file) {
-        updateCut(file.id, cutId, { start, end })
+        useEditorStore.getState().updateCut(file.id, cutId, { start, end })
       }
     },
-    [file, updateCut]
+    [file]
   )
 
   const handleVolumeChange = useCallback(

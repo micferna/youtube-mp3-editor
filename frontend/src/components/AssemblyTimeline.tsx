@@ -112,9 +112,6 @@ export default function AssemblyTimeline() {
   const assemblyCuts = useEditorStore((s) => s.assemblyCuts)
   const allCuts = useEditorStore((s) => s.cuts)
   const files = useEditorStore((s) => s.files)
-  const removeFromAssembly = useEditorStore((s) => s.removeFromAssembly)
-  const reorderAssembly = useEditorStore((s) => s.reorderAssembly)
-  const clearAssembly = useEditorStore((s) => s.clearAssembly)
 
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [showExport, setShowExport] = useState(false)
@@ -158,9 +155,9 @@ export default function AssemblyTimeline() {
       const newIndex = resolvedItems.findIndex((item) => item.id === over.id)
       if (oldIndex === -1 || newIndex === -1) return
 
-      reorderAssembly(oldIndex, newIndex)
+      useEditorStore.getState().reorderAssembly(oldIndex, newIndex)
     },
-    [resolvedItems, reorderAssembly]
+    [resolvedItems]
   )
 
   const exportCuts = resolvedItems
@@ -218,7 +215,7 @@ export default function AssemblyTimeline() {
               <button
                 onClick={(e) => {
                   e.stopPropagation()
-                  clearAssembly()
+                  useEditorStore.getState().clearAssembly()
                 }}
                 className="flex items-center gap-1 px-2 py-1 rounded-md text-xs transition-all hover:bg-red-500/20"
                 style={{ color: 'var(--accent-primary)' }}
@@ -281,7 +278,7 @@ export default function AssemblyTimeline() {
                       index={item.index}
                       cut={item.cut!}
                       fileName={item.fileName}
-                      onRemove={() => removeFromAssembly(item.index)}
+                      onRemove={() => useEditorStore.getState().removeFromAssembly(item.index)}
                     />
                   ))}
                 </SortableContext>

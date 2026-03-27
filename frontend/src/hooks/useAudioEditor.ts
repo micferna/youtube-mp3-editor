@@ -1,7 +1,9 @@
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useEditorStore } from '../stores/editorStore'
 import type { WaveformHandle } from '../components/Waveform'
+
+const EMPTY_CUTS: ReturnType<typeof useEditorStore.getState>['cuts'][string] = []
 
 export function useAudioEditor() {
   const [searchParams] = useSearchParams()
@@ -11,73 +13,68 @@ export function useAudioEditor() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Mark-in / mark-out for keyboard-driven cut creation
   const markInRef = useRef<number | null>(null)
 
-  const loadFile = useEditorStore((s) => s.loadFile)
+  // State selectors — only primitives and stable references
   const activeFileId = useEditorStore((s) => s.activeFileId)
-  const file = useEditorStore((s) => (activeFileId ? s.files[activeFileId] : null))
-  const cuts = useEditorStore((s) => (activeFileId ? (s.cuts[activeFileId] ?? []) : []))
+  const files = useEditorStore((s) => s.files)
+  const cutsMap = useEditorStore((s) => s.cuts)
   const isPlaying = useEditorStore((s) => s.isPlaying)
   const currentTime = useEditorStore((s) => s.currentTime)
   const volume = useEditorStore((s) => s.volume)
   const playbackRate = useEditorStore((s) => s.playbackRate)
 
-  const setPlaying = useEditorStore((s) => s.setPlaying)
-  const setCurrentTime = useEditorStore((s) => s.setCurrentTime)
-  const setVolume = useEditorStore((s) => s.setVolume)
-  const setPlaybackRate = useEditorStore((s) => s.setPlaybackRate)
-  const addCut = useEditorStore((s) => s.addCut)
-  const undo = useEditorStore((s) => s.undo)
+  // Derive values with useMemo to avoid new references
+  const file = useMemo(() => (activeFileId ? files[activeFileId] ?? null : null), [activeFileId, files])
+  const cuts = useMemo(() => (activeFileId ? cutsMap[activeFileId] ?? EMPTY_CUTS : EMPTY_CUTS), [activeFileId, cutsMap])
 
   // Load file on mount or fileId change
   useEffect(() => {
     if (!fileId) return
     setIsLoading(true)
     setError(null)
-    loadFile(fileId)
+    useEditorStore.getState().loadFile(fileId)
       .catch((err) => {
         setError(err instanceof Error ? err.message : 'Failed to load file')
       })
       .finally(() => {
         setIsLoading(false)
       })
-  }, [fileId, loadFile])
+  }, [fileId])
 
-  // Play/pause toggle
   const togglePlay = useCallback(() => {
     const ws = waveformRef.current
     if (!ws) return
-    if (isPlaying) {
+    const playing = useEditorStore.getState().isPlaying
+    if (playing) {
       ws.pause()
-      setPlaying(false)
+      useEditorStore.getState().setPlaying(false)
     } else {
       ws.play()
-      setPlaying(true)
+      useEditorStore.getState().setPlaying(true)
     }
-  }, [isPlaying, setPlaying])
+  }, [])
 
-  // Seek
-  const handleSeek = useCallback(
-    (time: number) => {
-      setCurrentTime(time)
-      waveformRef.current?.seek(time)
-    },
-    [setCurrentTime]
-  )
+  const handleSeek = useCallback((time: number) => {
+    useEditorStore.getState().setCurrentTime(time)
+    waveformRef.current?.seek(time)
+  }, [])
 
-  // Time update from waveform
-  const handleTimeUpdate = useCallback(
-    (time: number) => {
-      setCurrentTime(time)
-    },
-    [setCurrentTime]
-  )
+  const handleTimeUpdate = useCallback((time: number) => {
+    useEditorStore.getState().setCurrentTime(time)
+  }, [])
+
+  const setVolume = useCallback((v: number) => {
+    useEditorStore.getState().setVolume(v)
+  }, [])
+
+  const setPlaybackRate = useCallback((r: number) => {
+    useEditorStore.getState().setPlaybackRate(r)
+  }, [])
 
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't trigger shortcuts when typing in inputs
       const tag = (e.target as HTMLElement)?.tagName
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
 
@@ -88,31 +85,26 @@ export function useAudioEditor() {
           break
         }
         case 'KeyI': {
-          // Mark cut start
-          markInRef.current = currentTime
+          markInRef.current = useEditorStore.getState().currentTime
           break
         }
         case 'KeyO': {
-          // Mark cut end — create cut from mark-in to current
-          if (markInRef.current !== null && activeFileId) {
-            const start = Math.min(markInRef.current, currentTime)
-            const end = Math.max(markInRef.current, currentTime)
+          const state = useEditorStore.getState()
+          const now = state.currentTime
+          if (markInRef.current !== null && state.activeFileId) {
+            const start = Math.min(markInRef.current, now)
+            const end = Math.max(markInRef.current, now)
             if (end - start > 0.1) {
-              addCut(activeFileId, start, end)
+              state.addCut(state.activeFileId, start, end)
             }
             markInRef.current = null
           }
           break
         }
-        case 'Delete':
-        case 'Backspace': {
-          // Could implement selected cut deletion here
-          break
-        }
         case 'KeyZ': {
           if (e.ctrlKey || e.metaKey) {
             e.preventDefault()
-            undo()
+            useEditorStore.getState().undo()
           }
           break
         }
@@ -121,7 +113,7 @@ export function useAudioEditor() {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [togglePlay, currentTime, activeFileId, addCut, undo])
+  }, [togglePlay])
 
   return {
     fileId,
@@ -139,6 +131,5 @@ export function useAudioEditor() {
     handleTimeUpdate,
     setVolume,
     setPlaybackRate,
-    setPlaying,
   }
 }
