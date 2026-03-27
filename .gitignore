@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+venv/
+node_modules/
+frontend/dist/
+data/downloads/
+data/exports/
+data/temp/
+data/waveforms/
+data/projects.json
+.env
