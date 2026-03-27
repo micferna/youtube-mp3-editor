@@ -45,6 +45,7 @@ export interface EditorState {
   setActiveFile: (id: string) => void
   addCut: (fileId: string, start: number, end: number, name?: string) => string
   updateCut: (fileId: string, cutId: string, updates: Partial<Cut>) => void
+  duplicateCut: (fileId: string, cutId: string) => string | null
   removeCut: (fileId: string, cutId: string) => void
   reorderCuts: (fileId: string, cutIds: string[]) => void
   addToAssembly: (fileId: string, cutId: string) => void
@@ -142,6 +143,30 @@ export const useEditorStore = create<EditorState>()(
         })
       })
       return cutId
+    },
+
+    duplicateCut: (fileId: string, cutId: string): string | null => {
+      const newId = crypto.randomUUID()
+      let found = false
+      set((state) => {
+        pushHistory(state)
+        const fileCuts = state.cuts[fileId]
+        if (!fileCuts) return
+        const idx = fileCuts.findIndex((c) => c.id === cutId)
+        if (idx === -1) return
+        const original = fileCuts[idx]
+        const colorIndex = fileCuts.length % CUT_COLORS.length
+        fileCuts.splice(idx + 1, 0, {
+          id: newId,
+          fileId,
+          start: original.start,
+          end: original.end,
+          name: original.name ? `${original.name} (copy)` : '',
+          color: CUT_COLORS[colorIndex],
+        })
+        found = true
+      })
+      return found ? newId : null
     },
 
     updateCut: (fileId: string, cutId: string, updates: Partial<Cut>) => {

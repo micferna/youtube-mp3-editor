@@ -1,11 +1,12 @@
 import { useState, useCallback, type CSSProperties } from 'react'
-import { GripVertical, Play, Trash2 } from 'lucide-react'
+import { GripVertical, Play, Trash2, Copy } from 'lucide-react'
 import type { Cut } from '../stores/editorStore'
 
 interface CutCardProps {
   cut: Cut
   onUpdate: (updates: Partial<Cut>) => void
   onDelete: () => void
+  onDuplicate: () => void
   onPreview: () => void
   dragHandleProps?: Record<string, unknown>
   style?: CSSProperties
@@ -61,6 +62,7 @@ export default function CutCard({
   cut,
   onUpdate,
   onDelete,
+  onDuplicate,
   onPreview,
   dragHandleProps,
   style,
@@ -184,6 +186,14 @@ export default function CutCard({
           title="Preview cut"
         >
           <Play size={14} />
+        </button>
+        <button
+          onClick={onDuplicate}
+          className="p-1.5 rounded-md transition-all hover:bg-white/10"
+          style={{ color: 'var(--text-secondary)' }}
+          title="Duplicate cut"
+        >
+          <Copy size={14} />
         </button>
         <button
           onClick={onDelete}

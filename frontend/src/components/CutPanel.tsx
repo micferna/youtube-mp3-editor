@@ -29,11 +29,13 @@ function SortableCutCard({
   cut,
   onUpdate,
   onDelete,
+  onDuplicate,
   onPreview,
 }: {
   cut: Cut
   onUpdate: (updates: Partial<Cut>) => void
   onDelete: () => void
+  onDuplicate: () => void
   onPreview: () => void
 }) {
   const {
@@ -58,6 +60,7 @@ function SortableCutCard({
         cut={cut}
         onUpdate={onUpdate}
         onDelete={onDelete}
+        onDuplicate={onDuplicate}
         onPreview={onPreview}
         dragHandleProps={{ ...attributes, ...listeners }}
       />
@@ -190,6 +193,7 @@ export default function CutPanel({ fileId, waveformRef }: CutPanelProps) {
                   cut={cut}
                   onUpdate={(updates) => useEditorStore.getState().updateCut(fileId, cut.id, updates)}
                   onDelete={() => useEditorStore.getState().removeCut(fileId, cut.id)}
+                  onDuplicate={() => useEditorStore.getState().duplicateCut(fileId, cut.id)}
                   onPreview={() => handlePreview(cut)}
                 />
               ))}
