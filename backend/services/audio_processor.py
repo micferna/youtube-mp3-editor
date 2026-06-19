@@ -96,11 +96,41 @@ class AudioProcessor:
         if not file_paths:
             raise ValueError("No files to merge")
 
-        # Build concat file
-        concat_path = Path(output_path).parent / "concat_list.txt"
+        # Crossfade path: chain acrossfade between each consecutive segment.
+        if fade_ms > 0 and len(file_paths) >= 2:
+            fade_s = fade_ms / 1000.0
+            cmd: list[str] = ["ffmpeg", "-y"]
+            for fp in file_paths:
+                cmd += ["-i", fp]
+
+            filter_parts: list[str] = []
+            prev = "[0:a]"
+            last = len(file_paths) - 1
+            for i in range(1, len(file_paths)):
+                out = "[out]" if i == last else f"[a{i}]"
+                filter_parts.append(
+                    f"{prev}[{i}:a]acrossfade=d={fade_s}:c1=tri:c2=tri{out}"
+                )
+                prev = out
+            cmd += ["-filter_complex", ";".join(filter_parts), "-map", "[out]", output_path]
+
+            proc = await asyncio.create_subprocess_exec(
+                *cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            _, stderr = await proc.communicate()
+            if proc.returncode != 0:
+                raise RuntimeError(f"ffmpeg crossfade merge failed: {stderr.decode()}")
+            return output_path
+
+        # Plain concatenation (stream copy) via the concat demuxer.
+        concat_path = Path(output_path).parent / f"concat_{Path(output_path).stem}.txt"
         with open(concat_path, "w") as f:
             for fp in file_paths:
-                f.write(f"file '{fp}'\n")
+                # Escape single quotes for the concat demuxer syntax.
+                safe = str(fp).replace("'", "'\\''")
+                f.write(f"file '{safe}'\n")
 
         cmd = [
             "ffmpeg", "-y",
@@ -110,19 +140,6 @@ class AudioProcessor:
             "-acodec", "copy",
             output_path,
         ]
-
-        # If crossfade is requested, re-encode instead of copy
-        if fade_ms > 0 and len(file_paths) >= 2:
-            fade_s = fade_ms / 1000.0
-            # For simplicity, use concat demuxer with re-encode for crossfade
-            cmd = [
-                "ffmpeg", "-y",
-                "-f", "concat",
-                "-safe", "0",
-                "-i", str(concat_path),
-                "-af", f"afade=t=in:st=0:d={fade_s},afade=t=out:st=0:d={fade_s}",
-                output_path,
-            ]
 
         proc = await asyncio.create_subprocess_exec(
             *cmd,

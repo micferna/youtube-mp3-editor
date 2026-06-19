@@ -44,10 +44,11 @@ class VideoProcessor:
         if not file_paths:
             raise ValueError("No files to merge")
 
-        concat_path = Path(output_path).parent / "concat_list.txt"
+        concat_path = Path(output_path).parent / f"concat_{Path(output_path).stem}.txt"
         with open(concat_path, "w") as f:
             for fp in file_paths:
-                f.write(f"file '{fp}'\n")
+                safe = str(fp).replace("'", "'\\''")
+                f.write(f"file '{safe}'\n")
 
         proc = await asyncio.create_subprocess_exec(
             "ffmpeg", "-y",

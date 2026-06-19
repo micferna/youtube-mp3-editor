@@ -17,6 +17,8 @@ router = APIRouter(prefix="/api/files", tags=["files"])
 audio_processor = AudioProcessor()
 DOWNLOAD_DIR = DIRS["downloads"]
 
+VIDEO_EXTS = (".mp4", ".mkv", ".webm", ".avi", ".mov")
+
 
 @router.get("")
 async def list_files():
@@ -24,30 +26,46 @@ async def list_files():
 
 
 @router.post("/upload")
-async def upload_file(file: UploadFile):
-    if not file.filename:
-        raise HTTPException(status_code=400, detail="No filename provided")
+async def upload_files(files: list[UploadFile]):
+    if not files:
+        raise HTTPException(status_code=400, detail="No files provided")
 
-    file_id = str(uuid.uuid4())
-    dest = DOWNLOAD_DIR / file.filename
-    with open(dest, "wb") as f:
-        shutil.copyfileobj(file.file, f)
+    storage = StorageManager()
+    created: list[FileInfo] = []
 
-    duration = await audio_processor.get_duration(str(dest))
-    ext = Path(file.filename).suffix.lower()
-    file_type = "video" if ext in (".mp4", ".mkv", ".webm", ".avi", ".mov") else "audio"
+    for file in files:
+        if not file.filename:
+            continue
 
-    info = FileInfo(
-        id=file_id,
-        name=Path(file.filename).stem,
-        source_url="upload",
-        path=str(dest),
-        type=file_type,
-        duration=duration,
-        created_at=datetime.now(timezone.utc).isoformat(),
-    )
-    StorageManager().add_file(info)
-    return info
+        # Strip any directory components to prevent path traversal.
+        safe_name = Path(file.filename).name
+        dest = DOWNLOAD_DIR / safe_name
+        # Avoid clobbering an existing file with the same name.
+        if dest.exists():
+            dest = DOWNLOAD_DIR / f"{dest.stem}_{uuid.uuid4().hex[:8]}{dest.suffix}"
+
+        with open(dest, "wb") as f:
+            shutil.copyfileobj(file.file, f)
+
+        duration = await audio_processor.get_duration(str(dest))
+        ext = dest.suffix.lower()
+        file_type = "video" if ext in VIDEO_EXTS else "audio"
+
+        info = FileInfo(
+            id=str(uuid.uuid4()),
+            name=dest.stem,
+            source_url="upload",
+            path=str(dest),
+            type=file_type,
+            duration=duration,
+            created_at=datetime.now(timezone.utc).isoformat(),
+        )
+        storage.add_file(info)
+        created.append(info)
+
+    if not created:
+        raise HTTPException(status_code=400, detail="No valid files uploaded")
+    return created
 
 
 @router.get("/{file_id}")

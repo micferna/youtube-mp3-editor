@@ -83,8 +83,8 @@ export default function ExportModal({
         })),
         mode: exportMode,
         format,
-        bitrate: format === 'mp3' ? bitrate : undefined,
-        fade: fadeEnabled && exportMode === 'merge' ? fadeDuration : undefined,
+        quality: bitrate,
+        fade: fadeEnabled && exportMode === 'merge' ? fadeDuration : 0,
       }
 
       const res = await fetch('/api/export', {

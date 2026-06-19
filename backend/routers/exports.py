@@ -7,6 +7,7 @@ from pathlib import Path
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 from fastapi.responses import FileResponse
+from starlette.background import BackgroundTask
 
 from backend.models.schemas import CutInfo, ExportRequest, ExportStatus
 from backend.services.audio_processor import AudioProcessor
@@ -20,6 +21,14 @@ video_processor = VideoProcessor()
 
 EXPORT_DIR = DIRS["exports"]
 TEMP_DIR = DIRS["temp"]
+
+
+def _cleanup(*paths: str) -> None:
+    for p in paths:
+        try:
+            os.remove(p)
+        except OSError:
+            pass
 
 
 @router.post("/cuts/preview")
@@ -41,7 +50,13 @@ async def preview_cut(cut: CutInfo):
         raise HTTPException(status_code=500, detail=str(e))
 
     media_type = "audio/mpeg" if info.type == "audio" else "video/mp4"
-    return FileResponse(temp_path, media_type=media_type, filename=f"preview{ext}")
+    # Delete the temp preview once it has been streamed to the client.
+    return FileResponse(
+        temp_path,
+        media_type=media_type,
+        filename=f"preview{ext}",
+        background=BackgroundTask(_cleanup, temp_path),
+    )
 
 
 async def _run_export(export_id: str, req: ExportRequest) -> None:
@@ -49,6 +64,7 @@ async def _run_export(export_id: str, req: ExportRequest) -> None:
     try:
         cut_paths: list[str] = []
         file_type = "audio"
+        total = max(1, len(req.cuts))
 
         for i, cut in enumerate(req.cuts):
             info = storage.get_file(cut.file_id)
@@ -64,6 +80,7 @@ async def _run_export(export_id: str, req: ExportRequest) -> None:
             else:
                 await video_processor.cut(info.path, cut.start, cut.end, seg_path)
             cut_paths.append(seg_path)
+            storage.update_export(export_id, progress=round((i + 1) / total * 80, 1))
 
         output_paths: list[str] = []
 
@@ -72,12 +89,12 @@ async def _run_export(export_id: str, req: ExportRequest) -> None:
             merged_path = str(EXPORT_DIR / f"{export_id}_merged{out_ext}")
 
             if file_type == "audio":
-                await audio_processor.merge(cut_paths, merged_path)
-                # Convert if needed
+                await audio_processor.merge(cut_paths, merged_path, fade_ms=req.fade)
+                # Convert if the merged container is not already the target format
                 if req.format and not merged_path.endswith(f".{req.format}"):
                     final_path = str(EXPORT_DIR / f"{export_id}_final.{req.format}")
                     await audio_processor.convert(merged_path, req.format, req.quality, final_path)
-                    os.remove(merged_path)
+                    _cleanup(merged_path)
                     output_paths.append(final_path)
                 else:
                     output_paths.append(merged_path)
@@ -93,19 +110,20 @@ async def _run_export(export_id: str, req: ExportRequest) -> None:
                     output_paths.append(final_path)
                 else:
                     dest = str(EXPORT_DIR / f"{export_id}_part{i}{Path(seg).suffix}")
-                    os.rename(seg, dest)
+                    os.replace(seg, dest)
                     output_paths.append(dest)
 
         # Clean up temp segments
-        for p in cut_paths:
-            if os.path.exists(p):
-                os.remove(p)
+        _cleanup(*cut_paths)
 
-        storage.update_export(export_id, status="completed", output_paths=output_paths)
+        storage.update_export(
+            export_id, status="completed", progress=100, output_paths=output_paths
+        )
 
     except Exception as exc:
-        storage.update_export(export_id, status="error", output_paths=[])
-        raise exc
+        storage.update_export(
+            export_id, status="error", output_paths=[], message=str(exc)
+        )
 
 
 @router.post("/export")
@@ -116,7 +134,7 @@ async def start_export(req: ExportRequest, background_tasks: BackgroundTasks):
         raise HTTPException(status_code=400, detail="Mode must be 'merge' or 'separate'")
 
     export_id = str(uuid.uuid4())
-    status = ExportStatus(id=export_id, status="processing")
+    status = ExportStatus(id=export_id, status="processing", progress=0)
     StorageManager().add_export(status)
     background_tasks.add_task(_run_export, export_id, req)
     return {"id": export_id, "status": "processing"}
@@ -142,7 +160,7 @@ async def export_download(export_id: str):
         path = status.output_paths[0]
         return FileResponse(path, filename=Path(path).name)
 
-    # Multiple files — create a zip
+    # Multiple files — bundle into a zip
     zip_path = str(EXPORT_DIR / f"{export_id}.zip")
     with zipfile.ZipFile(zip_path, "w") as zf:
         for p in status.output_paths:
