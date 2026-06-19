@@ -3,7 +3,7 @@
 A self-hosted web app to download audio/video from YouTube, cut & trim segments on a
 waveform, reassemble cuts, and export to multiple formats — all from your browser.
 
-![stack](https://img.shields.io/badge/backend-FastAPI-009688) ![stack](https://img.shields.io/badge/frontend-React%2019%20%2B%20Vite%208-61dafb) ![media](https://img.shields.io/badge/media-ffmpeg%20%2B%20yt--dlp-orange)
+[![CI](https://github.com/micferna/youtube-mp3-editor/actions/workflows/ci.yml/badge.svg)](https://github.com/micferna/youtube-mp3-editor/actions/workflows/ci.yml) ![stack](https://img.shields.io/badge/backend-FastAPI-009688) ![stack](https://img.shields.io/badge/frontend-React%2019%20%2B%20Vite%208-61dafb) ![media](https://img.shields.io/badge/media-ffmpeg%20%2B%20yt--dlp-orange) ![license](https://img.shields.io/badge/license-MIT-green)
 
 ## Features
 
@@ -64,3 +64,7 @@ data/         downloads / exports / temp / waveforms + projects.json (gitignored
 - `yt-dlp` is intentionally left unpinned so each image build pulls the newest
   release (YouTube frequently breaks older versions).
 - This tool is for personal use; respect YouTube's Terms of Service and copyright.
+
+## License
+
+Released under the [MIT License](LICENSE).
