@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
 import {
-  X,
   Cookie,
   ClipboardPaste,
   Check,
@@ -9,6 +8,7 @@ import {
   ExternalLink,
   ShieldAlert,
 } from 'lucide-react'
+import Modal from './Modal'
 
 interface CookiesModalProps {
   isOpen: boolean
@@ -59,8 +59,7 @@ export default function CookiesModal({ isOpen, onClose, onStatusChange }: Cookie
 
   const handlePaste = async () => {
     try {
-      const text = await navigator.clipboard.readText()
-      setContent(text)
+      setContent(await navigator.clipboard.readText())
     } catch {
       // Clipboard API may be blocked; user can paste manually
     }
@@ -101,179 +100,128 @@ export default function CookiesModal({ isOpen, onClose, onStatusChange }: Cookie
     }
   }, [refreshStatus])
 
-  if (!isOpen) return null
-
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center">
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+    <Modal isOpen={isOpen} onClose={onClose} title="YouTube cookies" icon={<Cookie size={17} />} maxWidth="max-w-lg">
+      <div className="space-y-4">
+        {/* Why */}
+        <p className="text-[13px] leading-relaxed" style={{ color: 'var(--muted)' }}>
+          If downloads fail with{' '}
+          <span className="u-mono text-[12px]" style={{ color: 'var(--danger)' }}>
+            “confirm you’re not a bot”
+          </span>
+          , paste your YouTube cookies so yt-dlp can authenticate.
+        </p>
 
-      {/* Modal */}
-      <div
-        className="relative w-full max-w-lg mx-4 rounded-2xl overflow-hidden shadow-2xl max-h-[90vh] overflow-y-auto"
-        style={{
-          background:
-            'linear-gradient(180deg, rgba(22, 33, 62, 0.95) 0%, rgba(26, 26, 46, 0.98) 100%)',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
-          backdropFilter: 'blur(20px)',
-        }}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/5 sticky top-0 z-10"
-          style={{ background: 'rgba(22, 33, 62, 0.95)' }}
+        {/* Current status */}
+        <div
+          className="flex items-center justify-between px-3.5 py-2.5 rounded-[10px]"
+          style={{ background: 'var(--paper-2)', border: '1px solid var(--line)' }}
         >
           <div className="flex items-center gap-2">
-            <Cookie size={18} style={{ color: 'var(--accent-secondary)' }} />
-            <h2 className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>
-              YouTube Cookies
-            </h2>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg transition-all hover:bg-white/10 cursor-pointer"
-            style={{ color: 'var(--text-secondary)' }}
-          >
-            <X size={18} />
-          </button>
-        </div>
-
-        <div className="px-5 py-4 space-y-4">
-          {/* Why */}
-          <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-            If downloads fail with <span className="font-mono" style={{ color: 'var(--accent-primary)' }}>
-            “Sign in to confirm you’re not a bot”</span>, paste your YouTube cookies here. They
-            authenticate yt-dlp so YouTube stops blocking the server.
-          </p>
-
-          {/* Current status */}
-          <div
-            className="flex items-center justify-between px-3 py-2.5 rounded-lg"
-            style={{ background: 'rgba(255, 255, 255, 0.03)' }}
-          >
-            <div className="flex items-center gap-2">
-              <span
-                className="w-2 h-2 rounded-full"
-                style={{ background: status?.present ? '#4ade80' : 'var(--text-secondary)' }}
-              />
-              <span className="text-xs" style={{ color: 'var(--text-primary)' }}>
-                {status?.present
-                  ? `${status.count} cookie${status.count !== 1 ? 's' : ''} active`
-                  : 'No cookies configured'}
-              </span>
-            </div>
-            {status?.present && (
-              <button
-                onClick={handleClear}
-                className="flex items-center gap-1 text-xs transition-colors cursor-pointer"
-                style={{ color: 'var(--text-secondary)' }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--accent-primary)')}
-                onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-secondary)')}
-              >
-                <Trash2 size={13} />
-                Clear
-              </button>
-            )}
-          </div>
-
-          {/* How-to */}
-          <div
-            className="rounded-lg p-3 text-xs leading-relaxed"
-            style={{ background: 'rgba(83, 216, 251, 0.06)', border: '1px solid rgba(83, 216, 251, 0.15)' }}
-          >
-            <p className="font-semibold mb-1.5" style={{ color: 'var(--accent-secondary)' }}>
-              How to get them (≈30s)
-            </p>
-            <ol className="list-decimal list-inside space-y-1" style={{ color: 'var(--text-secondary)' }}>
-              <li>
-                Install the{' '}
-                <a href={EXT_CHROME} target="_blank" rel="noreferrer"
-                  className="underline inline-flex items-center gap-0.5"
-                  style={{ color: 'var(--accent-secondary)' }}>
-                  Get cookies.txt LOCALLY <ExternalLink size={10} />
-                </a>{' '}
-                extension (
-                <a href={EXT_FIREFOX} target="_blank" rel="noreferrer" className="underline"
-                  style={{ color: 'var(--accent-secondary)' }}>Firefox</a>).
-              </li>
-              <li>Open <span className="font-mono">youtube.com</span> while logged in.</li>
-              <li>Click the extension → <strong>Export</strong> (or Copy).</li>
-              <li>Paste the result below and save.</li>
-            </ol>
-          </div>
-
-          {/* Textarea */}
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>
-                cookies.txt content
-              </label>
-              <button
-                onClick={handlePaste}
-                className="flex items-center gap-1 text-xs transition-colors cursor-pointer"
-                style={{ color: 'var(--accent-secondary)' }}
-              >
-                <ClipboardPaste size={13} />
-                Paste
-              </button>
-            </div>
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="# Netscape HTTP Cookie File&#10;.youtube.com	TRUE	/	TRUE	..."
-              spellCheck={false}
-              className="w-full h-32 px-3 py-2 rounded-lg text-xs font-mono outline-none resize-y"
-              style={{
-                background: 'rgba(255, 255, 255, 0.04)',
-                color: 'var(--text-primary)',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
-              }}
+            <span
+              className="w-1.5 h-1.5 rounded-full"
+              style={{ background: status?.present ? 'var(--ok)' : 'var(--faint)' }}
             />
-          </div>
-
-          {/* Error */}
-          {saveState === 'error' && (
-            <div
-              className="px-3 py-2 rounded-lg text-xs"
-              style={{
-                background: 'rgba(233, 69, 96, 0.1)',
-                color: 'var(--accent-primary)',
-                border: '1px solid rgba(233, 69, 96, 0.2)',
-              }}
-            >
-              {errorMessage || 'Failed to save cookies.'}
-            </div>
-          )}
-
-          {/* Security note */}
-          <div className="flex items-start gap-2 text-[11px]" style={{ color: 'var(--text-secondary)' }}>
-            <ShieldAlert size={13} className="flex-shrink-0 mt-0.5" />
-            <span>
-              Cookies grant access to your YouTube account. They’re stored only on this
-              server (<span className="font-mono">data/cookies.txt</span>) — don’t share them.
+            <span className="text-xs" style={{ color: 'var(--ink)' }}>
+              {status?.present
+                ? `${status.count} cookie${status.count !== 1 ? 's' : ''} active`
+                : 'No cookies configured'}
             </span>
           </div>
-
-          {/* Save button */}
-          <button
-            onClick={handleSave}
-            disabled={!content.trim() || saveState === 'saving'}
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-            style={{
-              background: 'linear-gradient(135deg, var(--accent-secondary), #2980b9)',
-              color: '#fff',
-            }}
-          >
-            {saveState === 'saving' ? (
-              <Loader2 size={16} className="animate-spin" />
-            ) : saveState === 'saved' ? (
-              <Check size={16} />
-            ) : (
-              <Cookie size={16} />
-            )}
-            {saveState === 'saving' ? 'Saving...' : saveState === 'saved' ? 'Saved' : 'Save cookies'}
-          </button>
+          {status?.present && (
+            <button
+              onClick={handleClear}
+              className="flex items-center gap-1 text-xs cursor-pointer transition-colors"
+              style={{ color: 'var(--muted)' }}
+            >
+              <Trash2 size={13} />
+              Clear
+            </button>
+          )}
         </div>
+
+        {/* How-to */}
+        <div
+          className="rounded-[10px] p-3.5 text-[12px] leading-relaxed"
+          style={{ background: 'var(--iris-tint)', border: '1px solid var(--iris-200)' }}
+        >
+          <p className="font-semibold mb-1.5" style={{ color: 'var(--iris-600)' }}>
+            How to get them (≈30s)
+          </p>
+          <ol className="list-decimal list-inside space-y-1" style={{ color: 'var(--muted)' }}>
+            <li>
+              Install{' '}
+              <a href={EXT_CHROME} target="_blank" rel="noreferrer"
+                className="underline inline-flex items-center gap-0.5 font-medium" style={{ color: 'var(--iris-600)' }}>
+                Get cookies.txt LOCALLY <ExternalLink size={10} />
+              </a>{' '}
+              (
+              <a href={EXT_FIREFOX} target="_blank" rel="noreferrer" className="underline" style={{ color: 'var(--iris-600)' }}>
+                Firefox
+              </a>
+              ).
+            </li>
+            <li>Open <span className="u-mono">youtube.com</span> while signed in.</li>
+            <li>Click the extension → <strong style={{ color: 'var(--ink)' }}>Export</strong>.</li>
+            <li>Paste below and save.</li>
+          </ol>
+        </div>
+
+        {/* Textarea */}
+        <div>
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="text-xs font-medium" style={{ color: 'var(--muted)' }}>
+              cookies.txt content
+            </label>
+            <button onClick={handlePaste} className="flex items-center gap-1 text-xs cursor-pointer font-medium" style={{ color: 'var(--iris-600)' }}>
+              <ClipboardPaste size={13} />
+              Paste
+            </button>
+          </div>
+          <textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="# Netscape HTTP Cookie File&#10;.youtube.com	TRUE	/	TRUE	..."
+            spellCheck={false}
+            className="u-input u-mono h-28 px-3 py-2.5 text-[12px] resize-y"
+          />
+        </div>
+
+        {/* Error */}
+        {saveState === 'error' && (
+          <div
+            className="px-3 py-2 rounded-[10px] text-xs"
+            style={{ background: 'var(--danger-tint)', color: 'var(--danger)', border: '1px solid rgba(220,38,38,0.2)' }}
+          >
+            {errorMessage || 'Failed to save cookies.'}
+          </div>
+        )}
+
+        {/* Security note */}
+        <div className="flex items-start gap-2 text-[11px] leading-relaxed" style={{ color: 'var(--faint)' }}>
+          <ShieldAlert size={13} className="flex-shrink-0 mt-0.5" />
+          <span>
+            Cookies grant access to your account. Stored only on this server
+            (<span className="u-mono">data/cookies.txt</span>) — don’t share them.
+          </span>
+        </div>
+
+        {/* Save */}
+        <button
+          onClick={handleSave}
+          disabled={!content.trim() || saveState === 'saving'}
+          className="u-btn u-btn-primary w-full h-11"
+        >
+          {saveState === 'saving' ? (
+            <Loader2 size={16} className="animate-spin" />
+          ) : saveState === 'saved' ? (
+            <Check size={16} />
+          ) : (
+            <Cookie size={16} />
+          )}
+          {saveState === 'saving' ? 'Saving…' : saveState === 'saved' ? 'Saved' : 'Save cookies'}
+        </button>
       </div>
-    </div>
+    </Modal>
   )
 }

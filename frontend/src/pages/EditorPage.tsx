@@ -66,14 +66,8 @@ export default function EditorPage() {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-32">
-        <Loader2
-          size={40}
-          className="animate-spin mb-4"
-          style={{ color: 'var(--accent-secondary)' }}
-        />
-        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-          Loading...
-        </p>
+        <Loader2 size={28} className="animate-spin mb-4" style={{ color: 'var(--iris)' }} />
+        <p className="text-sm" style={{ color: 'var(--muted)' }}>Loading…</p>
       </div>
     )
   }
@@ -83,20 +77,12 @@ export default function EditorPage() {
     return (
       <div className="flex flex-col items-center justify-center py-32">
         <div
-          className="px-4 py-3 rounded-xl text-sm mb-4"
-          style={{
-            background: 'rgba(233, 69, 96, 0.1)',
-            color: 'var(--accent-primary)',
-            border: '1px solid rgba(233, 69, 96, 0.2)',
-          }}
+          className="px-4 py-3 rounded-[10px] text-sm mb-4"
+          style={{ background: 'var(--danger-tint)', color: 'var(--danger)', border: '1px solid rgba(220,38,38,0.2)' }}
         >
           {error}
         </div>
-        <button
-          onClick={() => navigate('/library')}
-          className="text-sm underline"
-          style={{ color: 'var(--accent-secondary)' }}
-        >
+        <button onClick={() => navigate('/library')} className="u-btn u-btn-ghost h-9 px-4">
           Go to Library
         </button>
       </div>
@@ -106,39 +92,20 @@ export default function EditorPage() {
   // No file state
   if (!fileId || !file) {
     return (
-      <div className="flex flex-col items-center justify-center py-32">
-        <FileAudio
-          size={56}
-          className="mb-6 opacity-20"
-          style={{ color: 'var(--text-secondary)' }}
-        />
-        <h2 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
-          No File Selected
+      <div className="flex flex-col items-center justify-center py-32 text-center">
+        <FileAudio size={44} className="mb-5" style={{ color: 'var(--faint)' }} />
+        <h2 className="text-xl font-bold mb-2" style={{ color: 'var(--ink)' }}>
+          No file selected
         </h2>
-        <p className="text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>
-          Open a file from the Library or download one first
+        <p className="text-sm mb-6" style={{ color: 'var(--muted)' }}>
+          Open a file from the Library, or download one first.
         </p>
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate('/')}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all hover:brightness-110"
-            style={{
-              background: 'linear-gradient(135deg, var(--accent-primary), #c23152)',
-              color: 'white',
-            }}
-          >
+          <button onClick={() => navigate('/')} className="u-btn u-btn-primary h-10 px-5">
             <Download size={16} />
             Download
           </button>
-          <button
-            onClick={() => navigate('/library')}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-white/10"
-            style={{
-              background: 'rgba(255, 255, 255, 0.05)',
-              color: 'var(--accent-secondary)',
-              border: '1px solid rgba(83, 216, 251, 0.2)',
-            }}
-          >
+          <button onClick={() => navigate('/library')} className="u-btn u-btn-ghost h-10 px-5">
             <Library size={16} />
             Library
           </button>
@@ -151,24 +118,23 @@ export default function EditorPage() {
   const isMuted = volume === 0
 
   return (
-    <div className="flex flex-col gap-4 -mx-6 -my-8 px-4 py-4 min-h-[calc(100vh-64px)]">
+    <div className="flex flex-col gap-4 min-h-[calc(100vh-9rem)] fade-up">
       {/* File name header */}
-      <div className="flex items-center gap-3 px-2">
-        <FileAudio size={18} style={{ color: 'var(--accent-secondary)' }} />
-        <h1 className="text-base font-semibold truncate" style={{ color: 'var(--text-primary)' }}>
+      <div className="flex items-center gap-3">
+        <div className="flex items-center justify-center w-8 h-8 rounded-[9px]" style={{ background: 'var(--iris-tint)' }}>
+          <FileAudio size={16} style={{ color: 'var(--iris)' }} />
+        </div>
+        <h1 className="text-base font-semibold truncate tracking-tight" style={{ color: 'var(--ink)' }}>
           {file.name}
         </h1>
-        <span className="text-xs px-2 py-0.5 rounded-full" style={{
-          background: 'rgba(255, 255, 255, 0.05)',
-          color: 'var(--text-secondary)',
-        }}>
+        <span className="u-badge u-mono" style={{ background: 'var(--paper-2)', color: 'var(--muted)' }}>
           {file.type.toUpperCase()}
         </span>
       </div>
 
       {/* Main content area */}
-      <div className="flex gap-4 flex-1 min-h-0">
-        {/* Left: Media + Controls (70%) */}
+      <div className="flex flex-col lg:flex-row gap-4 flex-1 min-h-0">
+        {/* Left: Media + Controls */}
         <div className="flex-[7] flex flex-col gap-3 min-w-0">
           {/* Media player */}
           {isVideo ? (
@@ -191,29 +157,20 @@ export default function EditorPage() {
           )}
 
           {/* Controls bar */}
-          <div
-            className="flex items-center gap-4 px-4 py-3 rounded-xl"
-            style={{
-              background: 'rgba(22, 33, 62, 0.6)',
-              border: '1px solid rgba(255, 255, 255, 0.05)',
-            }}
-          >
+          <div className="u-card flex items-center gap-4 px-4 py-3">
             {/* Play/Pause */}
             <button
               onClick={togglePlay}
-              className="flex items-center justify-center w-10 h-10 rounded-full transition-all hover:brightness-110 hover:scale-105"
-              style={{
-                background: 'linear-gradient(135deg, var(--accent-primary), #c23152)',
-                color: 'white',
-              }}
+              className="flex items-center justify-center w-10 h-10 rounded-full transition-all hover:-translate-y-0.5 flex-shrink-0"
+              style={{ background: 'var(--iris)', color: '#fff', boxShadow: '0 6px 18px rgba(79,70,229,.28)' }}
             >
               {isPlaying ? <Pause size={18} /> : <Play size={18} className="ml-0.5" />}
             </button>
 
             {/* Time display */}
-            <div className="font-mono text-sm tabular-nums" style={{ color: 'var(--text-primary)' }}>
-              <span style={{ color: 'var(--accent-secondary)' }}>{formatTime(currentTime)}</span>
-              <span style={{ color: 'var(--text-secondary)' }}> / {formatTime(file.duration)}</span>
+            <div className="u-mono text-sm">
+              <span style={{ color: 'var(--iris-600)' }}>{formatTime(currentTime)}</span>
+              <span style={{ color: 'var(--faint)' }}> / {formatTime(file.duration)}</span>
             </div>
 
             <div className="flex-1" />
@@ -222,8 +179,7 @@ export default function EditorPage() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setVolume(isMuted ? 0.8 : 0)}
-                className="p-1.5 rounded-lg transition-all hover:bg-white/10"
-                style={{ color: 'var(--text-secondary)' }}
+                className="u-btn u-btn-quiet h-8 w-8 p-0"
               >
                 {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
               </button>
@@ -236,24 +192,19 @@ export default function EditorPage() {
                 onChange={(e) => handleVolumeChange(Number(e.target.value))}
                 className="w-20 h-1 rounded-full appearance-none cursor-pointer"
                 style={{
-                  background: `linear-gradient(to right, var(--accent-secondary) ${volume * 100}%, rgba(255,255,255,0.1) ${volume * 100}%)`,
+                  background: `linear-gradient(to right, var(--iris) ${volume * 100}%, var(--line) ${volume * 100}%)`,
                 }}
               />
             </div>
 
             {/* Speed selector */}
-            <div className="flex items-center gap-1">
+            <div className="u-seg hidden sm:inline-flex">
               {SPEEDS.map((s) => (
                 <button
                   key={s}
                   onClick={() => setPlaybackRate(s)}
-                  className="px-2 py-1 rounded-md text-[11px] font-medium transition-all"
-                  style={{
-                    background: playbackRate === s
-                      ? 'var(--accent-secondary)'
-                      : 'rgba(255, 255, 255, 0.05)',
-                    color: playbackRate === s ? 'var(--bg-primary)' : 'var(--text-secondary)',
-                  }}
+                  data-active={playbackRate === s}
+                  className="u-seg-item u-mono px-2 py-1 text-[11px]"
                 >
                   {s}x
                 </button>
@@ -262,20 +213,17 @@ export default function EditorPage() {
           </div>
 
           {/* Keyboard hints */}
-          <div className="flex items-center gap-4 px-2">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-1">
             {[
-              { key: 'Space', action: 'Play/Pause' },
-              { key: 'I', action: 'Mark In' },
-              { key: 'O', action: 'Mark Out' },
+              { key: 'Space', action: 'Play / Pause' },
+              { key: 'I', action: 'Mark in' },
+              { key: 'O', action: 'Mark out' },
               { key: 'Ctrl+Z', action: 'Undo' },
             ].map(({ key, action }) => (
-              <span key={key} className="flex items-center gap-1.5 text-[10px]" style={{ color: 'var(--text-secondary)', opacity: 0.5 }}>
+              <span key={key} className="flex items-center gap-1.5 text-[11px]" style={{ color: 'var(--muted)' }}>
                 <kbd
-                  className="px-1.5 py-0.5 rounded text-[9px] font-mono"
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.06)',
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
-                  }}
+                  className="u-mono px-1.5 py-0.5 rounded-[6px] text-[10px]"
+                  style={{ background: 'var(--paper-2)', border: '1px solid var(--line)', color: 'var(--ink)' }}
                 >
                   {key}
                 </kbd>
@@ -285,8 +233,8 @@ export default function EditorPage() {
           </div>
         </div>
 
-        {/* Right: Cut Panel (30%) */}
-        <div className="flex-[3] min-w-[280px] max-w-[380px]">
+        {/* Right: Cut Panel */}
+        <div className="lg:flex-[3] w-full lg:min-w-[280px] lg:max-w-[380px]">
           <CutPanel fileId={file.id} waveformRef={waveformRef} />
         </div>
       </div>

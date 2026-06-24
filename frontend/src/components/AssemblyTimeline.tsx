@@ -70,25 +70,25 @@ function SortableAssemblyBlock({ id, cut, fileName, onRemove }: AssemblyBlockPro
       <div
         className="absolute inset-0 rounded-lg"
         style={{
-          background: cut.color + '25',
-          border: `1px solid ${cut.color}50`,
+          background: cut.color + '20',
+          border: `1px solid ${cut.color}55`,
         }}
       />
       <div className="relative z-10 flex flex-col gap-0.5 min-w-[100px]">
         <span
           className="text-[10px] truncate max-w-[120px]"
-          style={{ color: 'var(--text-secondary)' }}
+          style={{ color: 'var(--muted)' }}
         >
           {fileName}
         </span>
         <span
           className="text-xs font-medium truncate max-w-[120px]"
-          style={{ color: 'var(--text-primary)' }}
+          style={{ color: 'var(--ink)' }}
         >
           {cut.name || 'Untitled'}
         </span>
         <span
-          className="text-[10px] font-mono tabular-nums"
+          className="u-mono text-[10px]"
           style={{ color: cut.color }}
         >
           {formatDuration(duration)}
@@ -99,8 +99,8 @@ function SortableAssemblyBlock({ id, cut, fileName, onRemove }: AssemblyBlockPro
           e.stopPropagation()
           onRemove()
         }}
-        className="absolute top-1 right-1 p-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white/10"
-        style={{ color: 'var(--text-secondary)' }}
+        className="absolute top-1 right-1 p-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity hover:bg-[var(--paper-2)]"
+        style={{ color: 'var(--muted)' }}
       >
         <X size={12} />
       </button>
@@ -169,13 +169,7 @@ export default function AssemblyTimeline() {
     }))
 
   return (
-    <div
-      className="rounded-xl overflow-hidden transition-all"
-      style={{
-        background: 'rgba(22, 33, 62, 0.6)',
-        border: '1px solid rgba(255, 255, 255, 0.05)',
-      }}
-    >
+    <div className="u-card overflow-hidden transition-all">
       {/* Header */}
       <div
         className="flex items-center justify-between px-4 py-2.5 cursor-pointer select-none"
@@ -183,25 +177,25 @@ export default function AssemblyTimeline() {
       >
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <Layers size={16} style={{ color: 'var(--accent-secondary)' }} />
-            <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+            <Layers size={16} style={{ color: 'var(--iris)' }} />
+            <h3 className="text-sm font-semibold" style={{ color: 'var(--ink)' }}>
               Assembly
             </h3>
           </div>
           {assemblyCuts.length > 0 && (
             <>
               <span
-                className="text-[11px] px-1.5 py-0.5 rounded-full font-medium"
+                className="u-badge"
                 style={{
-                  background: 'var(--accent-secondary)',
-                  color: 'var(--bg-primary)',
+                  background: 'var(--iris-tint)',
+                  color: 'var(--iris-600)',
                 }}
               >
                 {assemblyCuts.length}
               </span>
               <span
-                className="text-xs font-mono tabular-nums"
-                style={{ color: 'var(--text-secondary)' }}
+                className="u-mono text-xs"
+                style={{ color: 'var(--muted)' }}
               >
                 {formatDuration(totalDuration)}
               </span>
@@ -217,8 +211,8 @@ export default function AssemblyTimeline() {
                   e.stopPropagation()
                   useEditorStore.getState().clearAssembly()
                 }}
-                className="flex items-center gap-1 px-2 py-1 rounded-md text-xs transition-all hover:bg-red-500/20"
-                style={{ color: 'var(--accent-primary)' }}
+                className="flex items-center gap-1 px-2 py-1 rounded-md text-xs transition-all hover:bg-[var(--danger-tint)]"
+                style={{ color: 'var(--danger)' }}
               >
                 <Trash2 size={12} />
                 Clear
@@ -228,11 +222,7 @@ export default function AssemblyTimeline() {
                   e.stopPropagation()
                   setShowExport(true)
                 }}
-                className="flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium transition-all hover:brightness-110"
-                style={{
-                  background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))',
-                  color: 'white',
-                }}
+                className="u-btn u-btn-primary h-7 px-2.5 text-xs"
               >
                 <Download size={12} />
                 Export
@@ -240,9 +230,9 @@ export default function AssemblyTimeline() {
             </>
           )}
           {isCollapsed ? (
-            <ChevronUp size={16} style={{ color: 'var(--text-secondary)' }} />
+            <ChevronUp size={16} style={{ color: 'var(--muted)' }} />
           ) : (
-            <ChevronDown size={16} style={{ color: 'var(--text-secondary)' }} />
+            <ChevronDown size={16} style={{ color: 'var(--muted)' }} />
           )}
         </div>
       </div>
@@ -254,8 +244,9 @@ export default function AssemblyTimeline() {
             <div
               className="flex items-center justify-center py-6 rounded-lg border-2 border-dashed"
               style={{
-                borderColor: 'rgba(255, 255, 255, 0.08)',
-                color: 'var(--text-secondary)',
+                borderColor: 'var(--line-strong)',
+                color: 'var(--muted)',
+                background: 'var(--paper-2)',
               }}
             >
               <span className="text-sm">Drag cuts here to assemble</span>

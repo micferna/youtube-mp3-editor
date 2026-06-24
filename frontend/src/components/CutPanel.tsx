@@ -123,25 +123,29 @@ export default function CutPanel({ fileId, waveformRef }: CutPanelProps) {
 
   return (
     <div
-      className="flex flex-col h-full rounded-xl overflow-hidden"
+      className="flex flex-col h-full overflow-hidden"
       style={{
-        background: 'rgba(22, 33, 62, 0.6)',
-        border: '1px solid rgba(255, 255, 255, 0.05)',
+        background: 'var(--card)',
+        border: '1px solid var(--line)',
+        borderRadius: 'var(--r-lg)',
       }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
+      <div
+        className="flex items-center justify-between px-4 py-3"
+        style={{ borderBottom: '1px solid var(--line)' }}
+      >
         <div className="flex items-center gap-2">
-          <Scissors size={16} style={{ color: 'var(--accent-primary)' }} />
-          <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+          <Scissors size={16} style={{ color: 'var(--iris)' }} />
+          <h3 className="text-sm font-semibold" style={{ color: 'var(--ink)' }}>
             Cuts
           </h3>
           {cuts.length > 0 && (
             <span
-              className="text-[11px] px-1.5 py-0.5 rounded-full font-medium"
+              className="u-badge u-mono"
               style={{
-                background: 'var(--accent-primary)',
-                color: 'white',
+                background: 'var(--iris-tint)',
+                color: 'var(--iris-600)',
               }}
             >
               {cuts.length}
@@ -150,11 +154,7 @@ export default function CutPanel({ fileId, waveformRef }: CutPanelProps) {
         </div>
         <button
           onClick={handleAddCut}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all hover:brightness-110"
-          style={{
-            background: 'linear-gradient(135deg, var(--accent-primary), #c23152)',
-            color: 'white',
-          }}
+          className="u-btn u-btn-primary h-8 px-2.5 text-xs"
         >
           <Plus size={14} />
           Add Cut
@@ -167,13 +167,13 @@ export default function CutPanel({ fileId, waveformRef }: CutPanelProps) {
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <Scissors
               size={32}
-              className="mb-3 opacity-20"
-              style={{ color: 'var(--text-secondary)' }}
+              className="mb-3"
+              style={{ color: 'var(--faint)' }}
             />
-            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+            <p className="text-sm" style={{ color: 'var(--muted)' }}>
               No cuts yet
             </p>
-            <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)', opacity: 0.6 }}>
+            <p className="text-xs mt-1" style={{ color: 'var(--faint)' }}>
               Select a region on the waveform or click Add Cut
             </p>
           </div>
@@ -204,27 +204,21 @@ export default function CutPanel({ fileId, waveformRef }: CutPanelProps) {
 
       {/* Footer actions */}
       {cuts.length > 0 && (
-        <div className="flex items-center gap-2 px-3 py-2.5 border-t border-white/5">
+        <div
+          className="flex items-center gap-2 px-3 py-2.5"
+          style={{ borderTop: '1px solid var(--line)' }}
+        >
           <button
             onClick={() => {
               cuts.forEach((cut) => useEditorStore.getState().addToAssembly(fileId, cut.id))
             }}
-            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all hover:bg-white/10"
-            style={{
-              background: 'rgba(255, 255, 255, 0.05)',
-              color: 'var(--accent-secondary)',
-              border: '1px solid rgba(83, 216, 251, 0.2)',
-            }}
+            className="u-btn u-btn-ghost flex-1 h-9 px-3 text-xs"
           >
             Add All to Assembly
           </button>
           <button
             onClick={() => setShowExport(true)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all hover:brightness-110"
-            style={{
-              background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))',
-              color: 'white',
-            }}
+            className="u-btn u-btn-primary h-9 px-3 text-xs"
           >
             <Download size={14} />
             Export

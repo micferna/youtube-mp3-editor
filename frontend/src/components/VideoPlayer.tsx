@@ -150,10 +150,11 @@ export default function VideoPlayer({
   return (
     <div
       ref={containerRef}
-      className="w-full rounded-xl overflow-hidden"
+      className="w-full overflow-hidden"
       style={{
-        background: 'var(--bg-secondary)',
-        border: '1px solid rgba(255, 255, 255, 0.05)',
+        background: 'var(--card)',
+        border: '1px solid var(--line)',
+        borderRadius: 'var(--r)',
       }}
     >
       {/* Video element */}
@@ -170,7 +171,7 @@ export default function VideoPlayer({
       <div
         ref={timelineRef}
         className="relative h-8 cursor-pointer mx-3 mt-2 rounded-md overflow-hidden"
-        style={{ background: 'rgba(255, 255, 255, 0.05)' }}
+        style={{ background: 'var(--paper-2)' }}
         onClick={handleTimelineClick}
       >
         {/* Progress */}
@@ -178,8 +179,8 @@ export default function VideoPlayer({
           className="absolute top-0 left-0 h-full transition-all duration-100"
           style={{
             width: `${progress}%`,
-            background: 'linear-gradient(90deg, var(--accent-primary), var(--accent-secondary))',
-            opacity: 0.3,
+            background: 'var(--iris)',
+            opacity: 0.18,
           }}
         />
         {/* Cut regions */}
@@ -201,7 +202,7 @@ export default function VideoPlayer({
             >
               <span
                 className="absolute top-0.5 left-1 text-[9px] font-medium truncate"
-                style={{ color: 'var(--text-primary)', maxWidth: '90%' }}
+                style={{ color: 'var(--ink)', maxWidth: '90%' }}
               >
                 {cut.name || 'Cut'}
               </span>
@@ -213,8 +214,7 @@ export default function VideoPlayer({
           className="absolute top-0 h-full w-0.5"
           style={{
             left: `${progress}%`,
-            background: 'var(--accent-primary)',
-            boxShadow: '0 0 6px var(--accent-primary)',
+            background: 'var(--iris)',
           }}
         />
       </div>
@@ -224,16 +224,16 @@ export default function VideoPlayer({
         {/* Play/Pause */}
         <button
           onClick={togglePlay}
-          className="p-2 rounded-lg transition-all hover:bg-white/10"
-          style={{ color: 'var(--text-primary)' }}
+          className="p-2 rounded-lg transition-all hover:bg-[var(--paper-2)]"
+          style={{ color: 'var(--ink)' }}
         >
           {isPlaying ? <Pause size={18} /> : <Play size={18} />}
         </button>
 
         {/* Time display */}
         <span
-          className="text-xs font-mono tabular-nums"
-          style={{ color: 'var(--text-secondary)' }}
+          className="u-mono text-xs tabular-nums"
+          style={{ color: 'var(--muted)' }}
         >
           {formatTime(currentTime)} / {formatTime(duration)}
         </span>
@@ -243,8 +243,8 @@ export default function VideoPlayer({
         {/* Volume */}
         <button
           onClick={toggleMute}
-          className="p-1.5 rounded-lg transition-all hover:bg-white/10"
-          style={{ color: 'var(--text-secondary)' }}
+          className="p-1.5 rounded-lg transition-all hover:bg-[var(--paper-2)]"
+          style={{ color: 'var(--muted)' }}
         >
           {isMuted || volume === 0 ? <VolumeX size={16} /> : <Volume2 size={16} />}
         </button>
@@ -257,7 +257,7 @@ export default function VideoPlayer({
           onChange={(e) => handleVolumeChange(Number(e.target.value))}
           className="w-20 h-1 rounded-full appearance-none cursor-pointer"
           style={{
-            background: `linear-gradient(to right, var(--accent-secondary) ${(isMuted ? 0 : volume) * 100}%, rgba(255,255,255,0.1) ${(isMuted ? 0 : volume) * 100}%)`,
+            background: `linear-gradient(to right, var(--iris) ${(isMuted ? 0 : volume) * 100}%, var(--line) ${(isMuted ? 0 : volume) * 100}%)`,
           }}
         />
 
@@ -267,9 +267,9 @@ export default function VideoPlayer({
           onChange={(e) => handleSpeedChange(Number(e.target.value))}
           className="text-xs px-2 py-1 rounded-lg appearance-none cursor-pointer"
           style={{
-            background: 'rgba(255, 255, 255, 0.05)',
-            color: 'var(--text-secondary)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
+            background: 'var(--paper-2)',
+            color: 'var(--ink)',
+            border: '1px solid var(--line)',
           }}
         >
           {speeds.map((s) => (
@@ -282,8 +282,8 @@ export default function VideoPlayer({
         {/* Fullscreen */}
         <button
           onClick={toggleFullscreen}
-          className="p-1.5 rounded-lg transition-all hover:bg-white/10"
-          style={{ color: 'var(--text-secondary)' }}
+          className="p-1.5 rounded-lg transition-all hover:bg-[var(--paper-2)]"
+          style={{ color: 'var(--muted)' }}
         >
           {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
         </button>

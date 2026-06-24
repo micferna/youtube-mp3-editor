@@ -109,17 +109,18 @@ export default function CutCard({
 
   return (
     <div
-      className="flex items-stretch gap-0 rounded-lg overflow-hidden transition-all hover:shadow-lg hover:shadow-black/20"
+      className="flex items-stretch gap-0 overflow-hidden transition-all hover:shadow-[var(--shadow)]"
       style={{
-        background: 'rgba(255, 255, 255, 0.03)',
-        border: '1px solid rgba(255, 255, 255, 0.06)',
+        background: 'var(--card)',
+        border: '1px solid var(--line)',
+        borderRadius: 'var(--r)',
         ...style,
       }}
     >
       {/* Color accent + drag handle */}
       <div
         className="flex flex-col items-center justify-center px-1.5 cursor-grab active:cursor-grabbing"
-        style={{ background: cut.color + '20', borderRight: `3px solid ${cut.color}` }}
+        style={{ background: cut.color + '18', borderRight: `3px solid ${cut.color}` }}
         {...dragHandleProps}
       >
         <GripVertical size={14} style={{ color: cut.color }} />
@@ -134,7 +135,7 @@ export default function CutCard({
           onChange={handleNameChange}
           placeholder="Untitled"
           className="text-sm font-medium bg-transparent border-none outline-none w-full truncate"
-          style={{ color: 'var(--text-primary)' }}
+          style={{ color: 'var(--ink)' }}
         />
 
         {/* Timestamps row */}
@@ -146,14 +147,14 @@ export default function CutCard({
             onChange={(e) => setStartText(e.target.value)}
             onBlur={handleStartBlur}
             onKeyDown={(e) => e.key === 'Enter' && handleStartBlur()}
-            className="w-[72px] px-1.5 py-0.5 rounded text-center font-mono tabular-nums"
+            className="u-mono w-[72px] px-1.5 py-0.5 rounded text-center tabular-nums outline-none focus:border-[var(--iris)]"
             style={{
-              background: 'rgba(255, 255, 255, 0.05)',
-              color: 'var(--accent-secondary)',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              background: 'var(--paper-2)',
+              color: 'var(--iris-600)',
+              border: '1px solid var(--line)',
             }}
           />
-          <span style={{ color: 'var(--text-secondary)' }}>-</span>
+          <span style={{ color: 'var(--muted)' }}>-</span>
           <input
             data-field="end"
             type="text"
@@ -161,16 +162,16 @@ export default function CutCard({
             onChange={(e) => setEndText(e.target.value)}
             onBlur={handleEndBlur}
             onKeyDown={(e) => e.key === 'Enter' && handleEndBlur()}
-            className="w-[72px] px-1.5 py-0.5 rounded text-center font-mono tabular-nums"
+            className="u-mono w-[72px] px-1.5 py-0.5 rounded text-center tabular-nums outline-none focus:border-[var(--iris)]"
             style={{
-              background: 'rgba(255, 255, 255, 0.05)',
-              color: 'var(--accent-secondary)',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              background: 'var(--paper-2)',
+              color: 'var(--iris-600)',
+              border: '1px solid var(--line)',
             }}
           />
           <span
-            className="ml-auto text-[11px] font-mono tabular-nums"
-            style={{ color: 'var(--text-secondary)' }}
+            className="u-mono ml-auto text-[11px] tabular-nums"
+            style={{ color: 'var(--muted)' }}
           >
             {formatDuration(duration)}
           </span>
@@ -181,24 +182,24 @@ export default function CutCard({
       <div className="flex flex-col items-center justify-center gap-1 px-2">
         <button
           onClick={onPreview}
-          className="p-1.5 rounded-md transition-all hover:bg-white/10"
-          style={{ color: 'var(--accent-secondary)' }}
+          className="p-1.5 rounded-md transition-all hover:bg-[var(--paper-2)]"
+          style={{ color: 'var(--iris-600)' }}
           title="Preview cut"
         >
           <Play size={14} />
         </button>
         <button
           onClick={onDuplicate}
-          className="p-1.5 rounded-md transition-all hover:bg-white/10"
-          style={{ color: 'var(--text-secondary)' }}
+          className="p-1.5 rounded-md transition-all hover:bg-[var(--paper-2)]"
+          style={{ color: 'var(--muted)' }}
           title="Duplicate cut"
         >
           <Copy size={14} />
         </button>
         <button
           onClick={onDelete}
-          className="p-1.5 rounded-md transition-all hover:bg-red-500/20"
-          style={{ color: 'var(--accent-primary)' }}
+          className="p-1.5 rounded-md transition-all hover:bg-[var(--danger-tint)]"
+          style={{ color: 'var(--danger)' }}
           title="Delete cut"
         >
           <Trash2 size={14} />

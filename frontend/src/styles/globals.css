@@ -1,39 +1,297 @@
 @import "tailwindcss";
 
-:root {
-  --bg-primary: #1a1a2e;
-  --bg-secondary: #16213e;
-  --accent-primary: #e94560;
-  --accent-secondary: #53d8fb;
-  --text-primary: #eeeeee;
-  --text-secondary: #a0a0b0;
-}
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;450;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-body {
-  margin: 0;
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  min-height: 100vh;
+/* ============================================================
+   Daylight — a crisp, airy pro-tool theme for an audio studio.
+   One accent (iris). Hairlines over glassmorphism. Mono for data.
+   ============================================================ */
+
+:root {
+  /* Surfaces */
+  --paper: #fafaf8;
+  --paper-2: #f3f2ee;
+  --card: #ffffff;
+
+  /* Ink */
+  --ink: #16171d;
+  --muted: #6b7076;
+  --faint: #9aa0a6;
+
+  /* Lines */
+  --line: #e8e7e2;
+  --line-strong: #dcdbd4;
+
+  /* Accent — iris (the one accent) */
+  --iris: #4f46e5;
+  --iris-600: #4338ca;
+  --iris-200: #c7d2fe;
+  --iris-tint: rgba(79, 70, 229, 0.07);
+  --iris-tint-2: rgba(79, 70, 229, 0.12);
+
+  /* States */
+  --ok: #15803d;
+  --ok-tint: rgba(21, 128, 61, 0.1);
+  --danger: #dc2626;
+  --danger-tint: rgba(220, 38, 38, 0.08);
+
+  /* Radius */
+  --r-lg: 16px;
+  --r: 12px;
+  --r-sm: 8px;
+
+  /* Shadows — very soft, light-theme appropriate */
+  --shadow-sm: 0 1px 2px rgba(20, 21, 26, 0.04), 0 1px 3px rgba(20, 21, 26, 0.05);
+  --shadow: 0 6px 20px rgba(20, 21, 26, 0.06), 0 1px 3px rgba(20, 21, 26, 0.04);
+  --shadow-lg: 0 28px 70px rgba(20, 21, 26, 0.16);
+
+  /* Type */
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+
+  /* ---- Legacy aliases: keep older components coherent on the new theme ---- */
+  --bg-primary: var(--paper);
+  --bg-secondary: var(--card);
+  --text-primary: var(--ink);
+  --text-secondary: var(--muted);
+  --accent-primary: var(--iris);
+  --accent-secondary: var(--iris-600);
 }
 
 * {
   box-sizing: border-box;
 }
 
-::-webkit-scrollbar {
-  width: 8px;
+html {
+  -webkit-text-size-adjust: 100%;
 }
 
-::-webkit-scrollbar-track {
-  background: var(--bg-secondary);
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-feature-settings: 'cv11', 'ss01';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-::-webkit-scrollbar-thumb {
-  background: #3a3a5e;
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+::selection {
+  background: var(--iris-tint-2);
+  color: var(--iris-600);
+}
+
+/* Focus — visible, accessible iris ring */
+:focus-visible {
+  outline: 2px solid var(--iris);
+  outline-offset: 2px;
   border-radius: 4px;
 }
 
+/* Scrollbar — light, unobtrusive */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 999px;
+  border: 3px solid var(--paper);
+}
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-primary);
+  background: var(--faint);
+}
+
+/* ============================================================
+   Reusable primitives
+   ============================================================ */
+
+.u-mono {
+  font-family: var(--font-mono);
+  font-feature-settings: 'tnum';
+  letter-spacing: -0.01em;
+}
+
+.u-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--iris-600);
+}
+
+.u-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Buttons */
+.u-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-weight: 550;
+  font-size: 14px;
+  line-height: 1;
+  border-radius: var(--r);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease,
+    box-shadow 0.15s ease, color 0.15s ease;
+  user-select: none;
+}
+.u-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.u-btn-primary {
+  background: var(--iris);
+  color: #fff;
+  box-shadow: 0 1px 2px rgba(79, 70, 229, 0.25), 0 8px 22px rgba(79, 70, 229, 0.22);
+}
+.u-btn-primary:hover:not(:disabled) {
+  background: var(--iris-600);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(79, 70, 229, 0.28), 0 14px 30px rgba(79, 70, 229, 0.26);
+}
+.u-btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.u-btn-ghost {
+  background: var(--card);
+  color: var(--ink);
+  border-color: var(--line);
+}
+.u-btn-ghost:hover:not(:disabled) {
+  background: var(--paper-2);
+  border-color: var(--line-strong);
+}
+
+.u-btn-quiet {
+  background: transparent;
+  color: var(--muted);
+}
+.u-btn-quiet:hover:not(:disabled) {
+  background: var(--paper-2);
+  color: var(--ink);
+}
+
+/* Inputs */
+.u-input {
+  width: 100%;
+  background: var(--card);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  font-family: var(--font-body);
+  font-size: 14px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.u-input::placeholder {
+  color: var(--faint);
+}
+.u-input:focus {
+  outline: none;
+  border-color: var(--iris);
+  box-shadow: 0 0 0 3px var(--iris-tint);
+}
+
+/* Segmented chip toggle */
+.u-seg {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+}
+.u-seg-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  font-weight: 550;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+.u-seg-item[data-active='true'] {
+  background: var(--card);
+  color: var(--iris-600);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Badge / pill */
+.u-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* ============================================================
+   Signature — the brand waveform ("equalizer" bars)
+   ============================================================ */
+
+.eq {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 100%;
+}
+.eq > i {
+  display: block;
+  width: 3px;
+  border-radius: 999px;
+  background: currentColor;
+  transform-origin: center;
+  animation: eq-bounce 1.5s ease-in-out infinite;
+}
+@keyframes eq-bounce {
+  0%, 100% { transform: scaleY(0.35); opacity: 0.7; }
+  50% { transform: scaleY(1); opacity: 1; }
+}
+
+/* Soft page-enter */
+.fade-up {
+  animation: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .eq > i { transform: scaleY(0.6); }
 }

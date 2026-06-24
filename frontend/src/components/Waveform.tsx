@@ -79,9 +79,9 @@ const Waveform = forwardRef<WaveformHandle, WaveformProps>(
 
       const ws = WaveSurfer.create({
         container: containerRef.current,
-        waveColor: 'rgba(83, 216, 251, 0.5)',
-        progressColor: 'rgba(83, 216, 251, 0.8)',
-        cursorColor: '#e94560',
+        waveColor: 'rgba(79, 70, 229, 0.28)',
+        progressColor: 'rgba(79, 70, 229, 0.85)',
+        cursorColor: '#16171d',
         cursorWidth: 2,
         barWidth: 2,
         barGap: 1,
@@ -171,36 +171,31 @@ const Waveform = forwardRef<WaveformHandle, WaveformProps>(
       <div className="w-full">
         {/* Waveform container */}
         <div
-          className="relative rounded-xl overflow-hidden"
-          style={{
-            background: 'linear-gradient(180deg, rgba(22, 33, 62, 0.8) 0%, rgba(26, 26, 46, 0.9) 100%)',
-            border: '1px solid rgba(255, 255, 255, 0.05)',
-          }}
+          className="relative rounded-[14px] overflow-hidden"
+          style={{ background: 'var(--card)', border: '1px solid var(--line)' }}
         >
           {isLoading && (
-            <div className="absolute inset-0 flex items-center justify-center z-10 bg-[var(--bg-primary)]/80 backdrop-blur-sm">
+            <div
+              className="absolute inset-0 flex items-center justify-center z-10"
+              style={{ background: 'rgba(255, 255, 255, 0.7)', backdropFilter: 'blur(2px)' }}
+            >
               <div className="flex items-center gap-3">
                 <div
-                  className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin"
-                  style={{ borderColor: 'var(--accent-secondary)', borderTopColor: 'transparent' }}
+                  className="w-5 h-5 border-2 rounded-full animate-spin"
+                  style={{ borderColor: 'var(--iris)', borderTopColor: 'transparent' }}
                 />
-                <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                  Loading waveform...
+                <span className="text-sm" style={{ color: 'var(--muted)' }}>
+                  Loading waveform…
                 </span>
               </div>
             </div>
           )}
-          <div ref={containerRef} className="w-full px-2 py-3" />
+          <div ref={containerRef} className="w-full px-3 py-4" />
         </div>
 
         {/* Zoom controls */}
         <div className="flex items-center gap-3 mt-3">
-          <button
-            onClick={handleZoomOut}
-            className="p-1.5 rounded-lg transition-all hover:bg-white/10"
-            style={{ color: 'var(--text-secondary)' }}
-            title="Zoom out"
-          >
+          <button onClick={handleZoomOut} className="u-btn u-btn-quiet h-8 w-8 p-0" title="Zoom out">
             <ZoomOut size={16} />
           </button>
           <input
@@ -211,18 +206,13 @@ const Waveform = forwardRef<WaveformHandle, WaveformProps>(
             onChange={(e) => setZoom(Number(e.target.value))}
             className="flex-1 h-1 rounded-full appearance-none cursor-pointer"
             style={{
-              background: `linear-gradient(to right, var(--accent-secondary) ${((zoom - 10) / 490) * 100}%, rgba(255,255,255,0.1) ${((zoom - 10) / 490) * 100}%)`,
+              background: `linear-gradient(to right, var(--iris) ${((zoom - 10) / 490) * 100}%, var(--line) ${((zoom - 10) / 490) * 100}%)`,
             }}
           />
-          <button
-            onClick={handleZoomIn}
-            className="p-1.5 rounded-lg transition-all hover:bg-white/10"
-            style={{ color: 'var(--text-secondary)' }}
-            title="Zoom in"
-          >
+          <button onClick={handleZoomIn} className="u-btn u-btn-quiet h-8 w-8 p-0" title="Zoom in">
             <ZoomIn size={16} />
           </button>
-          <span className="text-xs tabular-nums" style={{ color: 'var(--text-secondary)' }}>
+          <span className="u-mono text-xs w-14 text-right" style={{ color: 'var(--muted)' }}>
             {zoom}px/s
           </span>
         </div>
