@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from backend.routers import downloads, exports, files
+from backend.routers import downloads, exports, files, settings
 from backend.storage.manager import StorageManager
 
 
@@ -36,6 +36,7 @@ app.include_router(downloads.router)
 app.include_router(downloads.ws_router)
 app.include_router(files.router)
 app.include_router(exports.router)
+app.include_router(settings.router)
 
 
 @app.get("/api/health")

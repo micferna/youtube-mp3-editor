@@ -22,7 +22,7 @@ ws_manager = ConnectionManager()
 YOUTUBE_RE = re.compile(r"(youtube\.com|youtu\.be)")
 
 
-async def _run_download(download_id: str, url: str, fmt: str) -> None:
+async def _run_download(download_id: str, url: str, fmt: str, playlist: bool = False) -> None:
     storage = StorageManager()
     storage.update_download(download_id, status="downloading")
     await ws_manager.broadcast(download_id, {
@@ -49,33 +49,43 @@ async def _run_download(download_id: str, url: str, fmt: str) -> None:
         })
 
     try:
-        result = await downloader.download(url, fmt, download_id, on_progress)
+        results = await downloader.download(url, fmt, download_id, on_progress, playlist)
 
-        file_id = str(uuid.uuid4())
-        file_info = FileInfo(
-            id=file_id,
-            name=result["title"],
-            source_url=url,
-            path=result["path"],
-            type=result["type"],
-            duration=result["duration"],
-            created_at=datetime.now(timezone.utc).isoformat(),
-        )
-        storage.add_file(file_info)
+        file_ids: list[str] = []
+        for res in results:
+            file_id = str(uuid.uuid4())
+            file_info = FileInfo(
+                id=file_id,
+                name=res["title"],
+                source_url=url,
+                path=res["path"],
+                type=res["type"],
+                duration=res["duration"],
+                created_at=datetime.now(timezone.utc).isoformat(),
+            )
+            storage.add_file(file_info)
+            file_ids.append(file_id)
+
+        # The card links to the first file; any further playlist items land in
+        # the library. Label it with the extra count so it's clear more arrived.
+        count = len(results)
+        name = results[0]["title"] if count == 1 else f"{results[0]['title']} +{count - 1}"
+        first_id = file_ids[0]
         storage.update_download(
             download_id,
             status="completed",
             progress=100,
-            file_id=file_id,
-            name=result["title"],
+            file_id=first_id,
+            name=name,
         )
         await ws_manager.broadcast(download_id, {
             "type": "completed",
             "download_id": download_id,
             "status": "completed",
             "progress": 100,
-            "file_id": file_id,
-            "name": result["title"],
+            "file_id": first_id,
+            "name": name,
+            "count": count,
         })
     except Exception as exc:
         storage.update_download(download_id, status="error", error=str(exc))
@@ -103,7 +113,7 @@ async def start_download(req: DownloadRequest, background_tasks: BackgroundTasks
         format=req.format,
     )
     StorageManager().add_download(status)
-    background_tasks.add_task(_run_download, download_id, req.url, req.format)
+    background_tasks.add_task(_run_download, download_id, req.url, req.format, req.playlist)
     # Return the full status object so the client can render the card immediately.
     return status
 

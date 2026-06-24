@@ -18,8 +18,11 @@ ENV PYTHONUNBUFFERED=1 \
 WORKDIR /app
 
 # ffmpeg/ffprobe are required for waveform generation, cutting and merging.
+# nodejs provides the JavaScript runtime yt-dlp needs to solve YouTube's
+# signature / "n" challenges (via the EJS solver); without it many videos fail
+# to download.
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends ffmpeg \
+    && apt-get install -y --no-install-recommends ffmpeg nodejs \
     && rm -rf /var/lib/apt/lists/*
 
 COPY backend/requirements.txt backend/requirements.txt

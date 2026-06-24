@@ -5,22 +5,32 @@ import {
   Video,
   Clipboard,
   Loader2,
+  ListMusic,
+  Cookie,
 } from 'lucide-react'
 import DownloadCard, { type DownloadItem } from '../components/DownloadCard'
+import CookiesModal from '../components/CookiesModal'
 
 const API_BASE = '/api'
 
 export default function DownloadPage() {
   const [url, setUrl] = useState('')
   const [format, setFormat] = useState<'audio' | 'video'>('audio')
+  const [playlist, setPlaylist] = useState(false)
+  const [cookiesOpen, setCookiesOpen] = useState(false)
+  const [cookiesActive, setCookiesActive] = useState(false)
   const [downloads, setDownloads] = useState<DownloadItem[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [loadingList, setLoadingList] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Load existing downloads on mount
+  // Load existing downloads + cookie status on mount
   useEffect(() => {
     fetchDownloads()
+    fetch(`${API_BASE}/cookies`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => d && setCookiesActive(d.present))
+      .catch(() => {})
   }, [])
 
   const fetchDownloads = async () => {
@@ -48,7 +58,7 @@ export default function DownloadPage() {
       const res = await fetch(`${API_BASE}/download`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: trimmed, format }),
+        body: JSON.stringify({ url: trimmed, format, playlist }),
       })
 
       if (!res.ok) {
@@ -159,6 +169,61 @@ export default function DownloadPage() {
               <Clipboard size={18} />
             </button>
           </div>
+        </div>
+
+        {/* Playlist toggle + cookies button */}
+        <div className="flex items-center justify-between gap-2 mb-3">
+        <button
+          type="button"
+          onClick={() => setPlaylist((p) => !p)}
+          className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium transition-all duration-200 cursor-pointer"
+          style={{
+            background: playlist ? 'rgba(83, 216, 251, 0.12)' : 'rgba(255, 255, 255, 0.04)',
+            border: `1px solid ${playlist ? 'rgba(83, 216, 251, 0.4)' : 'rgba(255, 255, 255, 0.08)'}`,
+            color: playlist ? 'var(--accent-secondary)' : 'var(--text-secondary)',
+          }}
+          title="When enabled, a playlist URL downloads every video as a separate file"
+        >
+          <span
+            className="flex items-center justify-center w-4 h-4 rounded"
+            style={{
+              background: playlist ? 'var(--accent-secondary)' : 'transparent',
+              border: `1.5px solid ${playlist ? 'var(--accent-secondary)' : 'var(--text-secondary)'}`,
+            }}
+          >
+            {playlist && (
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#0f1629" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            )}
+          </span>
+          <ListMusic size={14} />
+          Download full playlist
+        </button>
+
+          {/* Cookies button */}
+          <button
+            type="button"
+            onClick={() => setCookiesOpen(true)}
+            className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium transition-all duration-200 cursor-pointer"
+            style={{
+              background: 'rgba(255, 255, 255, 0.04)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              color: 'var(--text-secondary)',
+            }}
+            title="Set YouTube cookies to fix 'confirm you're not a bot' errors"
+          >
+            <span className="relative flex items-center">
+              <Cookie size={14} />
+              {cookiesActive && (
+                <span
+                  className="absolute -top-1 -right-1 w-1.5 h-1.5 rounded-full"
+                  style={{ background: '#4ade80' }}
+                />
+              )}
+            </span>
+            Cookies
+          </button>
         </div>
 
         {/* Format toggle + download button row */}
@@ -293,6 +358,12 @@ export default function DownloadPage() {
           </div>
         )}
       </div>
+
+      <CookiesModal
+        isOpen={cookiesOpen}
+        onClose={() => setCookiesOpen(false)}
+        onStatusChange={setCookiesActive}
+      />
     </div>
   )
 }

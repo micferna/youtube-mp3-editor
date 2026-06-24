@@ -7,5 +7,7 @@ data/downloads/
 data/exports/
 data/temp/
 data/waveforms/
+data/yt-dlp-cache/
+data/cookies.txt
 data/projects.json
 .env

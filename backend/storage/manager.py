@@ -18,6 +18,9 @@ DIRS = {
 }
 
 PROJECTS_FILE = BASE_DIR / "projects.json"
+# Optional YouTube cookies (Netscape format) used to bypass "confirm you're not
+# a bot" prompts. Lives at the data-dir root, never exposed via the files API.
+COOKIES_FILE = BASE_DIR / "cookies.txt"
 
 _MARKER = os.sep + "data" + os.sep
 

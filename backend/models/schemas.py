@@ -6,6 +6,9 @@ from pydantic import BaseModel, computed_field
 class DownloadRequest(BaseModel):
     url: str
     format: str  # "audio" or "video"
+    # When true, a playlist URL downloads every item; otherwise only the single
+    # video is fetched (the default, safe behaviour).
+    playlist: bool = False
 
 
 class FileInfo(BaseModel):
@@ -25,6 +28,11 @@ class FileInfo(BaseModel):
         if "youtube.com" in url or "youtu.be" in url:
             return "youtube"
         return "local"
+
+
+class CookiesRequest(BaseModel):
+    # Raw Netscape-format cookies.txt content pasted from the dashboard.
+    content: str
 
 
 class CutInfo(BaseModel):

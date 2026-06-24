@@ -8,7 +8,10 @@ waveform, reassemble cuts, and export to multiple formats — all from your brow
 ## Features
 
 - **Download** from YouTube (audio → MP3, or video → MP4) with real-time progress
-  (percentage / speed / ETA) over WebSocket.
+  (percentage / speed / ETA) over WebSocket. Optionally fetch an **entire playlist**
+  (each item becomes its own library file).
+- **YouTube cookies** (optional): paste a `cookies.txt` export in the dashboard to get
+  past "confirm you're not a bot" / age-gated videos.
 - **Library** of downloaded and uploaded files, with grid/list views and search.
 - **Waveform editor** (wavesurfer.js): mark in/out, create draggable/resizable cut
   regions, zoom, keyboard shortcuts, per-cut preview.
@@ -63,6 +66,14 @@ data/         downloads / exports / temp / waveforms + projects.json (gitignored
 
 - `yt-dlp` is intentionally left unpinned so each image build pulls the newest
   release (YouTube frequently breaks older versions).
+- YouTube now requires a **JavaScript runtime** (Node.js, shipped in the image) plus
+  yt-dlp's EJS challenge-solver to decipher stream signatures. The solver is fetched
+  from GitHub on first download and cached under `./data/yt-dlp-cache`. Without a JS
+  runtime, many videos fail with `yt-dlp exited with code 1`.
+- If YouTube returns **"Sign in to confirm you're not a bot"**, open the **Cookies**
+  panel on the download page and paste a `cookies.txt` export (from the
+  *Get cookies.txt LOCALLY* browser extension on youtube.com). It's stored at
+  `data/cookies.txt` and passed to yt-dlp via `--cookies`.
 - This tool is for personal use; respect YouTube's Terms of Service and copyright.
 
 ## License
